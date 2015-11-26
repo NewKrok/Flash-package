@@ -1,0 +1,38 @@
+/**
+ * Created by newkrok on 04/11/15.
+ */
+package net.fpp.services.store.events
+{
+	import flash.events.Event;
+
+	import net.fpp.services.store.MockStoreResponse;
+
+	public class StoreManagerEvent extends Event
+	{
+		public static const PRODUCT_PURCHASED:String = "PRODUCT_PURCHASED";
+
+		private var _productIdentifier:String;
+		private var _response:MockStoreResponse;
+
+		public function StoreManagerEvent( type:String, productIdentifier:String )
+		{
+			this._productIdentifier = productIdentifier;
+			super( type );
+		}
+
+		override public function clone():Event
+		{
+			return new StoreManagerEvent( type, this._productIdentifier );
+		}
+
+		public function get productIdentifier():String
+		{
+			return this._productIdentifier;
+		}
+
+		public function get response():MockStoreResponse
+		{
+			return this._response;
+		}
+	}
+}
