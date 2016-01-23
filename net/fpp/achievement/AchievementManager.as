@@ -1,4 +1,4 @@
-package net.fpp.achievement
+﻿package net.fpp.achievement
 {
 	import flash.events.EventDispatcher;
 	import flash.net.SharedObject;
@@ -35,6 +35,22 @@ package net.fpp.achievement
 			{
 				throw new Error( 'This achievement ID is already used: ' + achievementVO.id );
 			}
+		}
+		
+		public function unregisterAchievement( achievementID:uint ):void
+		{
+			var length:uint = this._achievementVOs.length;
+			
+			for ( var i:uint = 0; i < length; i++ )
+			{
+				if ( this._achievementVOs[i].id == achievementID )
+				{
+					this._achievementVOs.splice( i, 1 );
+					return;
+				}
+			}
+			
+			throw new Error( 'Missing achievement data: ' + achievementID );
 		}
 		
 		public function loadInformations( ):void
@@ -183,5 +199,9 @@ package net.fpp.achievement
 			return log;
 		}
 		
+		public function getAchievementVOs():Vector.<AchievementVO>
+		{
+			return this._achievementVOs;
+		}
 	}
 }
