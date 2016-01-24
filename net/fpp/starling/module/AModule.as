@@ -7,13 +7,19 @@
 	
 	public class AModule extends EventDispatcher
 	{
-		protected var _view:DisplayObject;
+		protected var _model:AModel;
+		
+		protected var _view:AModuleView;
 		
 		public function AModule():void
 		{
+			if( this._view && this._model )
+			{
+				this._view.setModel( this._model );
+			}
 		}
 		
-		public function getView():DisplayObject
+		public function getView():AModuleView
 		{
 			return this._view;
 		}
