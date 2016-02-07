@@ -1,6 +1,5 @@
 ﻿package net.fpp.starling.module
 {	
-	import starling.display.DisplayObject;
 	import starling.events.EventDispatcher;
 	
 	import net.fpp.starling.module.events.ModuleEvent;
@@ -12,6 +11,28 @@
 		protected var _view:AModuleView;
 		
 		public function AModule():void
+		{
+		}
+		
+		public function createView( moduleViewClass:Class ):AModuleView
+		{
+			this._view = new moduleViewClass();
+			
+			this.setModelToView();
+			
+			return this._view;
+		}		
+		
+		public function createModel( modelClass:Class ):AModel
+		{
+			this._model = new modelClass();
+			
+			this.setModelToView();
+			
+			return this._model;
+		}
+		
+		private function setModelToView():void
 		{
 			if( this._view && this._model )
 			{

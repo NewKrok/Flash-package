@@ -105,32 +105,49 @@
 			throw new Error( 'Missing achievement data: ' + achievementID );
 		}
 		
+		public function isAchievementRegistered( achievementID:uint ):Boolean
+		{
+			var length:uint = _achievementVOs.length;
+			
+			for ( var i:uint = 0; i < length; i++ )
+			{
+				if ( _achievementVOs[i].id == achievementID )
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
 		public function increaseAchievementCurrentValue( achievementID:uint, increaseValue:Number = 1 ):void
 		{
-			var achievementVO:AchievementVO = getAchievementVO( achievementID );
-			if ( !achievementVO.isEarned )
+			if ( isAchievementRegistered( achievementID ) )
 			{
-				var newCurrentValue:Number = achievementVO.currentValue + increaseValue;
-				setAchievementCurrentValue( achievementID, newCurrentValue );
+				var achievementVO:AchievementVO = getAchievementVO( achievementID );
+				if ( !achievementVO.isEarned )
+				{
+					var newCurrentValue:Number = achievementVO.currentValue + increaseValue;
+					setAchievementCurrentValue( achievementID, newCurrentValue );
+				}
 			}
 		}
 		
 		public function setAchievementCurrentValue( achievementID:uint, currentValue:Number ):void
 		{
-			var achievementVO:AchievementVO = getAchievementVO( achievementID );
-			if ( !achievementVO )
+			if ( isAchievementRegistered( achievementID ) )
 			{
-				throw new Error( 'Missing achievement data: ' + achievementID );
-			}
-			
-			if ( !achievementVO.isEarned )
-			{
-				achievementVO.currentValue = currentValue;
-				achievementVO.isEarned = achievementVO.currentValue >= achievementVO.requiredValue;
-				
-				if ( achievementVO.isEarned )
+				var achievementVO:AchievementVO = getAchievementVO( achievementID );
+
+				if ( !achievementVO.isEarned )
 				{
-					dispatchEvent( new AchievementEvent( AchievementEvent.ACHIEVEMENT_UNLOCKED, achievementVO.clone( ) ) );
+					achievementVO.currentValue = currentValue;
+					achievementVO.isEarned = achievementVO.currentValue >= achievementVO.requiredValue;
+					
+					if ( achievementVO.isEarned )
+					{
+						dispatchEvent( new AchievementEvent( AchievementEvent.ACHIEVEMENT_UNLOCKED, achievementVO.clone( ) ) );
+					}
 				}
 			}
 		}

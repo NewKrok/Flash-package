@@ -2,6 +2,7 @@
 {	
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import net.fpp.starling.module.events.ModuleEvent;
 	
 	public class AView extends Sprite
 	{
@@ -15,6 +16,8 @@
 			this.removeEventListener( Event.ADDED_TO_STAGE, onAddedToStageHandler );
 			
 			this.onInit();
+			
+			this.dispatchEvent( new ModuleEvent( ModuleEvent.MODULE_VIEW_INITED ) );
 		}
 		
 		protected function onInit():void

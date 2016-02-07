@@ -60,7 +60,7 @@
 			}
 		}
 		
-		private function orderByHorizontal():void
+		protected function orderByHorizontal():void
 		{
 			var nextChildPosition:Number = 0;
 			
@@ -74,7 +74,7 @@
 			}
 		}
 		
-		private function orderByVertical():void
+		protected function orderByVertical():void
 		{
 			var nextChildPosition:Number = 0;
 			

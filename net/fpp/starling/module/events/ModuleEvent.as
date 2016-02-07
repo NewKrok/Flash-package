@@ -8,6 +8,7 @@ package net.fpp.starling.module.events
 	public class ModuleEvent extends Event
 	{
 		public static const DISPOSE_REQUEST:String = "ModuleEvent.DISPOSE_REQUEST";
+		public static const MODULE_VIEW_INITED:String = "ModuleEvent.MODULE_VIEW_INITED";
 
 		public function ModuleEvent( type:String ):void
 		{
