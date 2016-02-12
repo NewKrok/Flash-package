@@ -152,6 +152,26 @@
 			}
 		}
 		
+		public function clearAllAchievementsData():void
+		{
+			this._achievementVOs.length = 0;
+			
+			this._savedObject.data.content = [];
+			this._savedObject.flush( );
+		}
+		
+		public function clearAchievementDataByID( achievementID:uint ):void
+		{
+			if ( this.isAchievementRegistered( achievementID ) )
+			{
+				var achievementVO:AchievementVO = this.getAchievementVO( achievementID );
+				achievementVO.currentValue = 0;
+				achievementVO.isEarned = false;
+			}
+			
+			this.save();
+		}
+		
 		public function save( ):void
 		{
 			var length:uint = _achievementVOs.length;
