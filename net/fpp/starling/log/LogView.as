@@ -1,11 +1,8 @@
-/**
+﻿/**
  * Created by newkrok on 08/11/15.
  */
 package net.fpp.starling.log
 {
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-
 	import net.fpp.starling.log.events.LogViewEvent;
 
 	import starling.display.Image;
@@ -16,10 +13,13 @@ package net.fpp.starling.log
 	import starling.text.TextField;
 	import starling.utils.HAlign;
 	import starling.utils.VAlign;
+	import starling.display.Quad;
+	import net.fpp.utils.TimeUtil;
+	import net.fpp.starling.log.vo.LogEntryVO;
 
 	public class LogView extends Sprite
 	{
-		private var _background:Image;
+		private var _background:Quad;
 		private var _contentText:TextField;
 
 		private var _isInited:Boolean;
@@ -44,31 +44,38 @@ package net.fpp.starling.log
 
 		private function buildView():void
 		{
-			this._background = Image.fromBitmap( new Bitmap( new BitmapData( this.stage.stageWidth * 2, this.stage.stageHeight * 2, false, 0 ) ), false, 2 );
-			this.addChild( this._background );
+			this._background = new Quad( this.stage.stageWidth, this.stage.stageHeight, 0x000000, true );
 			this._background.alpha = .7;
+			this.addChild( this._background );
 
 			this._contentText = new TextField( this.stage.stageWidth - 10, this.stage.stageHeight - 10, '' );
-			this.addChild( this._contentText );
+			
 			this._contentText.x = this.stage.stageWidth / 2 - _contentText.width / 2;
 			this._contentText.y = this.stage.stageHeight / 2 - _contentText.height / 2;
 			this._contentText.vAlign = VAlign.TOP;
 			this._contentText.hAlign = HAlign.LEFT;
 			this._contentText.color = 0xFFFFFF;
 			this._contentText.fontSize = 10;
+			
+			this.addChild( this._contentText );
 		}
 
-		public function add( ...args:Array ):void
+		public function add( logEntryVO:LogEntryVO ):void
 		{
-			var entry:String = '';
-			var length:int = args.length;
+			var entry:String = '[' + TimeUtil.timeStampToFormattedTime( logEntryVO.creationTime, TimeUtil.TIME_FORMAT_MM_SS_MS ) + '] ';
+			var length:int = logEntryVO.entry.length;
 
 			for ( var i:int = 0; i < length; i++ )
 			{
-				entry += args[i] + ' ';
+				entry += logEntryVO.entry[i] + ' ';
 			}
 
-			this._contentText.text = entry + '\n' + this._contentText.text;
+			this._contentText.text += entry + '\n';
+			
+			if ( this._contentText.textBounds.height > this._contentText.height )
+			{
+				this._contentText.text = this._contentText.text.substr( this._contentText.text.indexOf( '\n' ) + 1 );
+			}
 		}
 
 		private function onTouch( e:TouchEvent ):void

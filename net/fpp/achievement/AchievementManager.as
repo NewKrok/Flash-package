@@ -4,6 +4,7 @@
 	import flash.net.SharedObject;
 	
 	import net.fpp.achievement.events.AchievementEvent;
+	import net.fpp.starling.log.LogModule;
 	
 	public class AchievementManager extends EventDispatcher
 	{
@@ -15,25 +16,22 @@
 		
 		public function AchievementManager( namespace:String ):void
 		{
-			_namespace = namespace;
+			this._namespace = namespace;
 		}
 		
 		public function registerAchievement( achievementVO:AchievementVO ):void
 		{
 			var isThisAchievementIDAlreadyUsed:Boolean = false;
-			try
-			{
-				getAchievementVO( achievementVO.id );
-				isThisAchievementIDAlreadyUsed = true;
-			} catch ( e:Error ) {}
+
+			var registeredAchievementVO:AchievementVO = this.getAchievementVO( achievementVO.id );
 			
-			if ( !isThisAchievementIDAlreadyUsed )
+			if ( !registeredAchievementVO )
 			{
-				_achievementVOs.push( achievementVO );
+				this._achievementVOs.push( achievementVO );
 			}
 			else
 			{
-				throw new Error( 'This achievement ID is already used: ' + achievementVO.id );
+				LogModule.add( 'AchievementManager::registerAchievement - This achievement ID is already used: ' + achievementVO.id );
 			}
 		}
 		
@@ -50,14 +48,14 @@
 				}
 			}
 			
-			throw new Error( 'Missing achievement data: ' + achievementID );
+			LogModule.add( 'AchievementManager::unregisterAchievement - Missing achievement data: ' + achievementID );
 		}
 		
 		public function loadInformations( ):void
 		{
 			if ( _achievementVOs.length == 0 )
 			{
-				throw new Error( 'Missing registered achievements.' );
+				LogModule.add( 'AchievementManager::loadInformations - Missing registered achievements.' );
 			}
 			
 			_savedObject = SharedObject.getLocal( _namespace + '_FPP_ACHIEVEMENT_DATA' );
@@ -102,7 +100,9 @@
 				}
 			}
 			
-			throw new Error( 'Missing achievement data: ' + achievementID );
+			LogModule.add( 'AchievementManager::getAchievementVO - Missing achievement data: ' + achievementID );
+			
+			return null;
 		}
 		
 		public function isAchievementRegistered( achievementID:uint ):Boolean
