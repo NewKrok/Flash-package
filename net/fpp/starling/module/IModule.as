@@ -6,7 +6,7 @@
 	
 	public interface IModule
 	{
-		function getView():DisplayObject;
+		function getView():AModuleView;
 		
 		function dispose():void;
 	}

@@ -4,7 +4,7 @@
 	
 	import net.fpp.starling.module.events.ModuleEvent;
 	
-	public class AModule extends EventDispatcher
+	public class AModule extends EventDispatcher implements IModule
 	{
 		protected var _model:AModel;
 		
