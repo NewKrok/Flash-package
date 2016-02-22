@@ -37,7 +37,7 @@ package net.fpp.starling.log
 		{
 			var logEntryVO:LogEntryVO = new LogEntryVO( new Date().time, args );
 			
-			if ( _logger.isInited )
+			if ( _logger && _logger.isInited )
 			{
 				_logger.add( logEntryVO );
 				_logger.show();
