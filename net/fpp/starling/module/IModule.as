@@ -1,6 +1,8 @@
 ﻿package net.fpp.starling.module
 {
-	public interface IModule
+	import net.fpp.starling.events.IEventDispatcher;
+
+	public interface IModule extends IEventDispatcher
 	{
 		function getView():AModuleView;
 		
