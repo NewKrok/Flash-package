@@ -44,7 +44,7 @@ package net.fpp.starling.log
 
 		private function buildView():void
 		{
-			this._background = new Quad( this.stage.stageWidth, this.stage.stageHeight, 0x000000, true );
+			this._background = new Quad( this.stage.stageWidth, this.stage.stageHeight, 0x000000 );
 			this._background.alpha = .7;
 			this.addChild( this._background );
 

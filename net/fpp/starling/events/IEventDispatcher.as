@@ -9,7 +9,6 @@ package net.fpp.starling.events
 	{
 		function addEventListener( type:String, listener:Function ):void;
 		function removeEventListener( type:String, listener:Function ):void;
-		function hasEventListener( type:String ):Boolean;
 		function dispatchEvent( event:Event ):void;
 		function dispatchEventWith( type:String, bubbles:Boolean = false, data:Object = null ):void;
 	}
