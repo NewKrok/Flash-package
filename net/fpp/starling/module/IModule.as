@@ -6,8 +6,6 @@
 	{
 		function getView():AModuleView;
 
-		function registerService( service:AService ):void
-
 		function dispose():void;
 	}
 }

@@ -14,7 +14,7 @@ package net.fpp.starling.log
 	import starling.utils.HAlign;
 	import starling.utils.VAlign;
 	import starling.display.Quad;
-	import net.fpp.utils.TimeUtil;
+	import net.fpp.util.TimeUtil;
 	import net.fpp.starling.log.vo.LogEntryVO;
 
 	public class LogView extends Sprite

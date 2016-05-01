@@ -32,11 +32,6 @@
 			return this._model;
 		}
 
-		public function registerService( service:AService ):void
-		{
-			this._model.registerService( service );
-		}
-
 		private function setModelToView():void
 		{
 			if( this._view && this._model )

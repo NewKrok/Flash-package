@@ -1,7 +1,7 @@
 ﻿/**
  * Created by newkrok on 11/02/16.
  */
-package net.fpp.utils
+package net.fpp.util
 {
 	public class TimeUtil
 	{

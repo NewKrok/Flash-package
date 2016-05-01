@@ -1,7 +1,7 @@
 ﻿/**
  * Created by newkrok on 30/03/16.
  */
-package net.fpp.utils
+package net.fpp.util
 {
 	import net.fpp.geom.SimplePoint;
 	
