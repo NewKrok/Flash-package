@@ -4,6 +4,7 @@ package net.fpp.common.achievement {
 
 		private var _name:			String;
 		private var _description:	String;
+		
 		public var currentValue:	Number = 0;
 		private var _requiredValue:	Number = 0;
 		
