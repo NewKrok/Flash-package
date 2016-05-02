@@ -1,3 +1,0 @@
-﻿package net.fpp.services.ad {
-		public interface IFPPAdService {		function init( $applicationName:String, $campaign:String, $domain:String ):void;		function getAd( $adSize:String, $onlyFPPAd:Boolean, $location:String = 'global' ):IFPPAd;		function getAds( $count:uint, $adSize:String, $onlyFPPAd:Boolean, $location:String = 'global' ):Vector.<IFPPAd>;
-		function goToHome( ):void;				}	}

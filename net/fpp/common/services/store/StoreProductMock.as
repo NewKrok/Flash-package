@@ -1,0 +1,49 @@
+/**
+ * Created by newkrok on 04/11/15.
+ */
+package net.fpp.common.services.store
+{
+	public class StoreProductMock implements IStoreProduct
+	{
+		private var _productIdentifier:String;
+		private var _localizedDescription:String;
+
+		private var _localizedTitle:String;
+		private var _price:Number;
+		private var _purchased:Boolean;
+
+		public function StoreProductMock( identifier:String, localizedDescription:String, localizedTitle:String, price:Number, purchased:Boolean )
+		{
+			this._productIdentifier = identifier;
+			this._localizedDescription = localizedDescription;
+			this._localizedTitle = localizedTitle;
+			this._price = price;
+			this._purchased = purchased;
+		}
+
+		public function get productionIdentifier():String
+		{
+			return this._productIdentifier;
+		}
+
+		public function get localizedDescription():String
+		{
+			return this._localizedDescription;
+		}
+
+		public function get localizedTitle():String
+		{
+			return this._localizedTitle;
+		}
+
+		public function get price():Number
+		{
+			return this._price;
+		}
+
+		public function get purchased():Boolean
+		{
+			return this._purchased;
+		}
+	}
+}
