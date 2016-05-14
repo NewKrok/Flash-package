@@ -15,10 +15,11 @@ package net.fpp.common.util.pathfinding.vo
 
 		public var isWalkable:Boolean = true;
 
-		public function PathNodeVO( x:Number, y:Number )
+		public function PathNodeVO( x:Number, y:Number, isWalkable:Boolean = true )
 		{
 			this.x = x;
 			this.y = y;
+			this.isWalkable = isWalkable;
 		}
 	}
 }

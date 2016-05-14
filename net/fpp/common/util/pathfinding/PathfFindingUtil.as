@@ -10,95 +10,76 @@ package net.fpp.common.util.pathfinding
 
 	public class PathfFindingUtil
 	{
-		private static var _startPathNode:PathNodeVO;
-		private static var _endPathNode:PathNodeVO;
-		private static var _mapNodes:Vector.<Vector.<PathNodeVO>>;
+		private static var width:int;
+		private static var height:int;
 
-		private static var _openedPathNodes:Vector.<PathNodeVO>;
-		private static var _closedPathNodes:Vector.<PathNodeVO>;
+		private static var start:PathNodeVO;
+		private static var goal:PathNodeVO;
 
-		private static const _straightCost:Number = 1.0;
+		private static var map:Vector.<Vector.<PathNodeVO>>;
+
+		public static var open:Vector.<PathNodeVO>;
+
+		public static var closed:Vector.<PathNodeVO>;
+
+		private static const COST_ORTHOGONAL:Number = 1;
+		private static const COST_DIAGONAL:Number = Math.SQRT2;
 
 		public static function getPath( pathRequestVO:PathRequestVO ):PathVO
 		{
-			_startPathNode = getNodeByPosition( pathRequestVO.mapNodes, pathRequestVO.startPosition );
-			_endPathNode = getNodeByPosition( pathRequestVO.mapNodes, pathRequestVO.endPosition );
-			_mapNodes = pathRequestVO.mapNodes;
+			map = pathRequestVO.mapNodes;
 
-			_openedPathNodes = new <PathNodeVO>[];
-			_closedPathNodes = new <PathNodeVO>[];
+			width = map.length;
+			height = map[ 0 ].length;
 
-			_startPathNode.g = 0;
-			_startPathNode.h = diagonalHeuristic( _startPathNode );
-			_startPathNode.f = _startPathNode.g + _startPathNode.h;
+			start = map[pathRequestVO.startPosition.x][pathRequestVO.startPosition.y];
+			goal = map[pathRequestVO.endPosition.x][pathRequestVO.endPosition.y];
 
-			var pathVO:PathVO = new PathVO();
-			pathVO.path = calculatePath();
-			pathVO.path.push( pathRequestVO.endPosition );
+			open = new Vector.<PathNodeVO>;
+			closed = new Vector.<PathNodeVO>;
 
-			return pathVO;
-		}
+			var node:PathNodeVO = start;
+			node.g = 0;
+			node.h = euclidian( node );
+			node.f = node.g + node.h;
 
-		private static function getNodeByPosition( map:Vector.<Vector.<PathNodeVO>>, position:SimplePoint ):PathNodeVO
-		{
-			var xIndex:int = Math.floor( position.x );
-			var yIndex:int = Math.floor( position.y );
-
-			return map[ xIndex ][ yIndex ];
-		}
-
-		private static function diagonalHeuristic( pathNodeVO:PathNodeVO ):Number
-		{
-			var dx:Number = pathNodeVO.x - _endPathNode.x;
-			var dy:Number = pathNodeVO.y - _endPathNode.y;
-			var distance:Number = Math.abs( dx + dy );
-
-			var A_axis:Number = ( Math.abs( dx - dy ) - distance ) / 2;
-			if( A_axis > 0 )
+			while( node != goal )
 			{
-				distance += A_axis;
-			}
+				var startX:int = Math.max( 0, node.x - 1 );
+				var endX:int = Math.min( width - 1, node.x + 1 );
+				var startY:int = Math.max( 0, node.y - 1 );
+				var endY:int = Math.min( height, node.y + 1 );
 
-			return distance * _straightCost;
-		}
-
-		private static function calculatePath():Vector.<SimplePoint>
-		{
-			var pathNodeVO:PathNodeVO = _startPathNode;
-			while( pathNodeVO != _endPathNode )
-			{
-				var startX:int = Math.max( 0, pathNodeVO.x - 1 );
-				var endX:int = Math.min( _mapNodes.length - 1, pathNodeVO.x + 1 );
-				var startY:int = Math.max( 0, pathNodeVO.y - 1 );
-				var endY:int = Math.min( _mapNodes[ 0 ].length - 1, pathNodeVO.y + 1 );
-
-				for( var i:int = startX; i <= endX; i++ )
+				var i:int, j:int;
+				var test:PathNodeVO;
+				for( i = startX; i <= endX; i++ )
 				{
-					for( var j:int = startY; j <= endY; j++ )
+					for( j = startY; j <= endY; j++ )
 					{
-						var test:PathNodeVO = _mapNodes[ i ][ j ];
-						if( ( i - pathNodeVO.x ) * ( j - pathNodeVO.y ) > 0 )
-						{
-							continue;
-						}
-						if( test == pathNodeVO || !test.isWalkable )
+						test = map[ i ][ j ];
+
+						if( test == node || !test.isWalkable )
 						{
 							continue;
 						}
 
-						var cost:Number = _straightCost;
-						var g:Number = pathNodeVO.g + cost;
-						var h:Number = diagonalHeuristic( test );
+						var cost:Number = COST_ORTHOGONAL;
+						if( !((node.x == test.x) || (node.y == test.y)) )
+						{
+							cost = COST_DIAGONAL;
+						}
+						var g:Number = node.g + cost;
+						var h:Number = euclidian( test );
 						var f:Number = g + h;
 
-						if( isOpenPathNode( test ) || isClosedPathNode( test ) )
+						if( isOpen( test ) || isClosed( test ) )
 						{
 							if( test.f > f )
 							{
 								test.f = f;
 								test.g = g;
 								test.h = h;
-								test.parent = pathNodeVO;
+								test.parent = node;
 							}
 						}
 						else
@@ -106,83 +87,74 @@ package net.fpp.common.util.pathfinding
 							test.f = f;
 							test.g = g;
 							test.h = h;
-							test.parent = pathNodeVO;
-							_openedPathNodes.push( test );
+							test.parent = node;
+							open.push( test );
 						}
 					}
 				}
-				_closedPathNodes.push( pathNodeVO );
-
-				if( _openedPathNodes.length == 0 )
+				closed.push( node );
+				if( open.length == 0 )
 				{
-					return new <SimplePoint>[];
+					trace( "no path found" );
+					return null;
 				}
-				_openedPathNodes.sort( sortNodes );
-				pathNodeVO = _openedPathNodes.shift() as PathNodeVO;
+
+				open.sort( sortVector );
+				node = open.shift() as PathNodeVO;
 			}
 
-			return pathToPointVector( buildPath() );
-		}
+			var solution:Vector.<SimplePoint> = new Vector.<SimplePoint>();
+			solution.push( new SimplePoint( node.x, node.y ) );
 
-		private static function sortNodes( pathNodeVOA:PathNodeVO, pathNodeVOB:PathNodeVO ):int
-		{
-
-			return pathNodeVOA.f > pathNodeVOB.f ? 1 : pathNodeVOA.f == pathNodeVOB.f ? 0 : -1;
-		}
-
-		private static function pathToPointVector( path:Vector.<PathNodeVO> ):Vector.<SimplePoint>
-		{
-			var result:Vector.<SimplePoint> = new <SimplePoint>[];
-
-			for( var i:int = 1; i < path.length - 1; i++ )
+			while( node.parent && node.parent != start )
 			{
-				result.push( new SimplePoint( path[ i ].x, path[ i ].y ) );
+				node = node.parent;
+				solution.push( new SimplePoint( node.x, node.y ) );
 			}
 
-			return result;
-		}
-
-		private static function buildPath():Vector.<PathNodeVO>
-		{
-			var pathNodeVO:PathNodeVO = _endPathNode;
-
-			var path:Vector.<PathNodeVO> = new <PathNodeVO>[];
-			path.push( pathNodeVO );
-
-			while( pathNodeVO != _startPathNode )
-			{
-				pathNodeVO = pathNodeVO.parent;
-				path.unshift( pathNodeVO );
-			}
+			var path:PathVO = new PathVO();
+			path.path = solution.reverse();
 
 			return path;
 		}
 
-		private static function isOpenPathNode( pathNodeVO:PathNodeVO ):Boolean
+		private static function sortVector( x:PathNodeVO, y:PathNodeVO ):int
 		{
+			return (x.f >= y.f) ? 1 : -1;
+		}
 
-			for each ( var selectedNode:PathNodeVO in _openedPathNodes )
+		private static function euclidian( node:PathNodeVO ):Number
+		{
+			var dx:Number = node.x - goal.x;
+			var dy:Number = node.y - goal.y;
+			return Math.sqrt( dx * dx + dy * dy ) * COST_ORTHOGONAL;
+		}
+
+		private static function isClosed( node:PathNodeVO ):Boolean
+		{
+			var i:int, len:int = closed.length;
+			for( i = 0; i < len; i++ )
 			{
-				if( selectedNode == pathNodeVO )
+				if( closed[ i ] == node )
 				{
 					return true;
 				}
 			}
-
 			return false;
 		}
 
-		private static function isClosedPathNode( pathNodeVO:PathNodeVO ):Boolean
+		private static function isOpen( node:PathNodeVO ):Boolean
 		{
-			for each ( var selectedNode:PathNodeVO in _closedPathNodes )
+			var i:int, len:int = open.length;
+			for( i = 0; i < len; i++ )
 			{
-				if( selectedNode == pathNodeVO )
+				if( open[ i ] == node )
 				{
 					return true;
 				}
 			}
-
 			return false;
+
 		}
 	}
 }
