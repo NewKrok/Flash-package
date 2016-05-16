@@ -63,6 +63,18 @@
 			return this._horizontalGap;
 		}
 		
+		public function set gridSize( value:SimplePoint ):void
+		{
+			this._gridSize = value;
+			
+			this.orderElements();
+		}
+		
+		public function get gridSize():SimplePoint
+		{
+			return this._gridSize;
+		}
+		
 		private function orderElements():void
 		{
 			var col:int = 0;
