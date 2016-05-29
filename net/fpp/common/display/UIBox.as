@@ -48,6 +48,11 @@
 			return this._gap;
 		}
 		
+		public function draw():void
+		{
+			this.orderElements();
+		}
+		
 		private function orderElements():void
 		{
 			if( this._orderType == HORIZONTAL_ORDER )
