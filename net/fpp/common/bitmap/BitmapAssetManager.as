@@ -61,6 +61,44 @@ package net.fpp.common.bitmap
 				this._assets.push( assetVO );
 			}
 		}
+		
+		public function loadFromStarlingAtlas( atlasImageBitmap:Class, atlasStarlingDescription:Class ):void
+		{
+			var defaultBitmapData:BitmapData = ( new atlasImageBitmap as Bitmap ).bitmapData;
+
+			var descriptionXML:XMLList = new XMLList( new atlasStarlingDescription() )
+			var description:Object = this.convertStarlingDescriptionXMLToObject( descriptionXML );
+			
+			this.createAssets( defaultBitmapData, description );
+			
+			defaultBitmapData.dispose();
+			defaultBitmapData = null;
+		}
+		
+		private function convertStarlingDescriptionXMLToObject( sourceXML:XMLList ):Object
+		{
+			var result:Object = {};
+			result.frames = [];
+			
+			for ( var i:int = 0; i < sourceXML.SubTexture.length(); i++ )
+			{
+				var assetObject:Object = {};
+				
+				assetObject.spriteSourceSize = {};
+				assetObject.spriteSourceSize.w = sourceXML.SubTexture[i].@width;
+				assetObject.spriteSourceSize.h = sourceXML.SubTexture[i].@height;
+				
+				assetObject.frame = {};
+				assetObject.frame.x = sourceXML.SubTexture[i].@x;
+				assetObject.frame.y = sourceXML.SubTexture[i].@y;
+				assetObject.frame.w = sourceXML.SubTexture[i].@width;
+				assetObject.frame.h = sourceXML.SubTexture[i].@height;
+				
+				result.frames[sourceXML.SubTexture[i].@name] = assetObject;
+			}
+			
+			return result;
+		}
 
 		public function getBitmapData( key:String ):BitmapData
 		{

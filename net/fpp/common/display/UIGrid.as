@@ -18,7 +18,7 @@
 		
 		public function UIGrid( col:uint, gridSize:SimplePoint ):void
 		{
-			this._col = col;
+			this._col = col - 1;
 			this._gridSize = gridSize;
 		}
 		
@@ -143,7 +143,7 @@
 				rowCount--;
 			}
 			
-			for ( var i:int = 0; i < rowCount; i++ )
+			for ( var i:int = 0; i < rowCount + 1; i++ )
 			{
 				for ( var j:int = 0; j < this._col + 1; j++ )
 				{

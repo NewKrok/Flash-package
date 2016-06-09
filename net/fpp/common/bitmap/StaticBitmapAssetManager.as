@@ -3,8 +3,6 @@
  */
 package net.fpp.common.bitmap
 {
-	import net.fpp.common.bitmap.BitmapAssetManager;
-	
 	public class StaticBitmapAssetManager
 	{
 		private static var _scaleFactor:Number;
