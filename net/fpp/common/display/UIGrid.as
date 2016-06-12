@@ -95,7 +95,7 @@
 				}
 			}
 			
-			this._drawedRow = row - ( col == 0 ? 1 : 0 );
+			this._drawedRow = row;
 			this._drawedCol = col;
 			
 			this.drawBorder();
@@ -129,27 +129,47 @@
 		{
 			this.graphics.clear();
 			
-			var maxWidth:Number = this.getColPositionByIndex( this._col ) + this._gridSize.x;
-			var maxHeight:Number = this.getRowPositionByIndex( this._drawedRow ) + this._gridSize.y;
-			
 			this.graphics.lineStyle( 1, this._borderColor, this._isBorderEnabled ? 1 : 0 );
-			this.graphics.drawRect( 0, 0, maxWidth, maxHeight );
+			this.graphics.drawRect( 0, 0, this.width, this.height );
 			
 			this.graphics.lineStyle( 1, this._borderColor, this._isBorderEnabled ? .3 : 0 );
 			
-			var rowCount:int = this._drawedRow == 0 ? 1 : this._drawedRow;			
+			var rowCount:int = this._drawedRow == 0 ? 1 : this._drawedRow + 1;		
 			if ( rowCount > 1 && this._drawedCol == 0 )
 			{
 				rowCount--;
 			}
 			
-			for ( var i:int = 0; i < rowCount + 1; i++ )
+			for ( var i:int = 0; i < rowCount; i++ )
 			{
-				for ( var j:int = 0; j < this._col + 1; j++ )
+				var colCount:int = this._drawedRow > 0 ? this._col + 1 : this._drawedCol;
+				
+				for ( var j:int = 0; j < colCount; j++ )
 				{
 					this.graphics.drawRect( this.getColPositionByIndex( j ), this.getRowPositionByIndex( i ), this._gridSize.x, this._gridSize.y );
 				}
 			}
+		}
+		
+		override public function get width():Number
+		{
+			var maxWidth:Number = this.getColPositionByIndex( this._drawedRow > 0 ? this._col : this._drawedCol - 1 ) + this._gridSize.x;
+			
+			return maxWidth;
+		}
+		
+		override public function get height():Number
+		{
+			var rowIndex:int = this._drawedRow;
+			
+			if ( this._drawedCol == 0 && this._drawedRow > 0 )
+			{
+				rowIndex--;
+			}
+			
+			var maxHeight:Number = this.getRowPositionByIndex( rowIndex ) + this._gridSize.y;
+			
+			return maxHeight;
 		}
 	}
 }
