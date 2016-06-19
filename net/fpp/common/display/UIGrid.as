@@ -13,6 +13,7 @@
 		private var _drawedRow:int;
 		private var _drawedCol:int;
 		private var _borderColor:uint;
+		private var _childAutoScale:Boolean;
 		
 		private var _isBorderEnabled:Boolean = false;
 		
@@ -75,6 +76,18 @@
 			return this._gridSize;
 		}
 		
+		public function set childAutoScale( value:Boolean ):void
+		{
+			this._childAutoScale = value;
+			
+			this.orderElements();
+		}
+		
+		public function get childAutoScale():Boolean
+		{
+			return this._childAutoScale;
+		}
+		
 		private function orderElements():void
 		{
 			var col:int = 0;
@@ -83,6 +96,20 @@
 			for ( var i:int = 0; i < this.numChildren; i++ )
 			{
 				var child:DisplayObject = this.getChildAt( i );
+				
+				if ( this._childAutoScale ) 
+				{
+					if ( child.width > this._gridSize.x )
+					{
+						child.width = this._gridSize.x;
+						child.scaleY = child.scaleX;
+					}
+					if ( child.height > this._gridSize.y )
+					{
+						child.height = this._gridSize.y;
+						child.scaleX = child.scaleY;
+					}
+				}
 				
 				child.x = this.getColPositionByIndex( col ) + this._gridSize.x / 2 - child.width / 2;
 				child.y = this.getRowPositionByIndex( row ) + this._gridSize.y / 2 - child.height / 2;

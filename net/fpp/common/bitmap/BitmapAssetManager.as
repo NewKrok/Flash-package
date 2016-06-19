@@ -103,10 +103,18 @@ package net.fpp.common.bitmap
 		public function getBitmapData( key:String ):BitmapData
 		{
 			var length:int = this._assets.length;
+			const movieClipNameFix:String = '0000';
 
 			for ( var i:int = 0; i < length; i++ )
 			{
-				if ( this._assets[i].key == key )
+				var assetKey:String = this._assets[i].key;
+				
+				if ( assetKey.substr( assetKey.length - movieClipNameFix.length ) == movieClipNameFix )
+				{
+					assetKey = assetKey.substr( 0, assetKey.length - movieClipNameFix.length )
+				}
+				
+				if ( assetKey == key )
 				{
 					if ( this._scaleFactor == 1 )
 					{
@@ -131,10 +139,10 @@ package net.fpp.common.bitmap
 			return null;
 		}
 		
-		public function getBitmap( key:String ):Bitmap
+		public function getBitmap( key:String, smoothing:Boolean = true ):Bitmap
 		{
 			try{
-				return new Bitmap( this.getBitmapData( key ) );
+				return new Bitmap( this.getBitmapData( key ), 'auto', smoothing );
 			}
 			catch ( e:Error )
 			{
