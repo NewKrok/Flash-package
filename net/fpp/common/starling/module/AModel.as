@@ -2,7 +2,10 @@
 {
 	import starling.events.EventDispatcher;
 
-	public class AModel extends EventDispatcher
+	public class AModel extends EventDispatcher implements IModel
 	{
+		public function dispose():void
+		{
+		}
 	}
 }
