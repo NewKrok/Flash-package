@@ -52,6 +52,12 @@
 				this._view.removeFromParent( true );
 				this._view = null;
 			}
+			
+			if( this._model )
+			{
+				this._model.dispose();
+				this._model = null;
+			}
 		}
 
 		protected function disposeRequest():void
