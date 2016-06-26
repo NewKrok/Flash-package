@@ -14,7 +14,7 @@
 		{
 		}
 
-		public function createView( moduleViewClass:Class ):AModuleView
+		public function createModuleView( moduleViewClass:Class ):AModuleView
 		{
 			this._view = new moduleViewClass();
 

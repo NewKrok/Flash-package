@@ -40,7 +40,7 @@ package net.fpp.common.starling.module
 
 				if( module is IUpdatableModule )
 				{
-					( module as IUpdatableModule ).update();
+					( module as IUpdatableModule ).onUpdate();
 				}
 			}
 		}
@@ -49,9 +49,39 @@ package net.fpp.common.starling.module
 		{
 		}
 
-		public function createModule( moduleClass:Class ):AModule
+		public function createModule( moduleClass:Class, args:Array = null ):AModule
 		{
-			var module:AModule = new moduleClass;
+			var module:AModule;
+
+			if( args )
+			{
+				switch ( args.length )
+				{
+					case 1:
+						module = new moduleClass( args[0] );
+						break;
+
+					case 2:
+						module = new moduleClass( args[0], args[1] );
+						break;
+
+					case 3:
+						module = new moduleClass( args[0], args[1], args[2] );
+						break;
+
+					case 4:
+						module = new moduleClass( args[0], args[1], args[2], args[3] );
+						break;
+
+					case 5:
+						module = new moduleClass( args[0], args[1], args[2], args[3], args[4] );
+						break;
+				}
+			}
+			else
+			{
+				module = new moduleClass();
+			}
 
 			this._modules.push( module );
 

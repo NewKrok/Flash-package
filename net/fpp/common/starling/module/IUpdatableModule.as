@@ -2,6 +2,6 @@
 {
 	public interface IUpdatableModule extends IModule
 	{
-		function update():void;
+		function onUpdate():void;
 	}
 }
