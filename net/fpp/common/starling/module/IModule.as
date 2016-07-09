@@ -6,6 +6,8 @@
 	{
 		function getView():AModuleView;
 
+		function onRegistered():void;
+
 		function dispose():void;
 	}
 }

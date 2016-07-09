@@ -45,6 +45,10 @@
 			return this._view;
 		}
 
+		public function onRegistered():void
+		{
+		}
+
 		public function dispose():void
 		{
 			if( this._view )

@@ -12,7 +12,7 @@ package net.fpp.common.starling.module
 	{
 		public var injector:Injector = new Injector();
 
-		private var _modules:Vector.<AModule> = new <AModule>[];
+		private var _modules:Vector.<IModule> = new <IModule>[];
 
 		public function startUpdateHandling():void
 		{
@@ -36,7 +36,7 @@ package net.fpp.common.starling.module
 
 			for( var i:int = 0; i < length; i++ )
 			{
-				var module:AModule = this._modules[ i ];
+				var module:IModule = this._modules[ i ];
 
 				if( module is IUpdatableModule )
 				{
@@ -49,9 +49,9 @@ package net.fpp.common.starling.module
 		{
 		}
 
-		public function createModule( moduleClass:Class, args:Array = null ):AModule
+		public function createModule( moduleClass:Class, args:Array = null ):IModule
 		{
-			var module:AModule;
+			var module:IModule;
 
 			if( args )
 			{
@@ -83,11 +83,38 @@ package net.fpp.common.starling.module
 				module = new moduleClass();
 			}
 
+			return this.registerModule( module );
+		}
+
+		public function registerModule( module:IModule ):IModule
+		{
 			this._modules.push( module );
 
 			this.injector.injectInto( module );
 
+			module.onRegistered();
+
 			return module;
+		}
+
+		public function unregisterModule( module:IModule ):void
+		{
+			var length:int = this._modules.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var bModule:IModule = this._modules[ i ];
+
+				if ( module == bModule )
+				{
+					bModule.dispose();
+					bModule = null;
+
+					this._modules.splice( i, 1 );
+
+					return;
+				}
+			}
 		}
 
 		override public function dispose():void
@@ -98,10 +125,9 @@ package net.fpp.common.starling.module
 
 			for( var i:int = 0; i < length; i++ )
 			{
-				var module:AModule = this._modules[ i ];
+				var module:IModule = this._modules[ i ];
 
 				module.dispose();
-
 				module = null;
 			}
 
