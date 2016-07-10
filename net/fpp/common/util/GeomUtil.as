@@ -35,5 +35,10 @@ package net.fpp.common.util
 
 			return result;
 		}
+
+		public static function isSimplePointEqual( simplePointA:SimplePoint, simplePointB:SimplePoint ):Boolean
+		{
+			return simplePointA.x == simplePointB.x && simplePointA.y == simplePointB.y;
+		}
 	}
 }
