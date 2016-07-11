@@ -10,5 +10,9 @@ package net.fpp.common.util.objectpool
 		function releaseObject( value:IPoolableObject ):void;
 
 		function dispose():void;
+
+		function getPoolSize():int;
+
+		function getUsedObjectCount():int;
 	}
 }

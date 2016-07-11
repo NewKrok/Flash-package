@@ -8,7 +8,8 @@ package net.fpp.common.util.objectpool
 		private var _objectPoolFactory:IPoolableObjectFactory;
 
 		private var _availableObjects:Vector.<IPoolableObject>;
-		private var _usedObjects:Vector.<IPoolableObject>;
+
+		private var _usedObjectIndexes:Array;
 
 		private var _increaseCount:uint;
 
@@ -20,7 +21,9 @@ package net.fpp.common.util.objectpool
 			this._isDynamicPool = objectPoolSettingVO.isDynamicPool;
 			this._increaseCount = objectPoolSettingVO.increaseCount;
 
-			if ( objectPoolSettingVO.isDynamicPool )
+			this._usedObjectIndexes = [];
+
+			if( this._isDynamicPool )
 			{
 				this.createDynamicPool( objectPoolSettingVO.poolSize );
 			}
@@ -33,9 +36,8 @@ package net.fpp.common.util.objectpool
 		private function createDynamicPool( poolSize:uint ):void
 		{
 			this._availableObjects = new Vector.<IPoolableObject>;
-			this._usedObjects = new Vector.<IPoolableObject>;
 
-			for ( var i:int = 0; i < poolSize; i++ )
+			for( var i:int = 0; i < poolSize; i++ )
 			{
 				this._availableObjects.push( this.createPoolableObject() );
 			}
@@ -43,7 +45,7 @@ package net.fpp.common.util.objectpool
 
 		private function increaseDynamicPool( count:uint ):void
 		{
-			for ( var i:int = 0; i < count; i++ )
+			for( var i:int = 0; i < count; i++ )
 			{
 				this._availableObjects.push( this.createPoolableObject() );
 			}
@@ -52,11 +54,10 @@ package net.fpp.common.util.objectpool
 		private function createPoolWithFixedSize( poolSize:uint ):void
 		{
 			this._availableObjects = new Vector.<IPoolableObject>( poolSize );
-			this._usedObjects = new Vector.<IPoolableObject>( poolSize );
 
-			for ( var i:int = 0; i < poolSize; i++ )
+			for( var i:int = 0; i < poolSize; i++ )
 			{
-				this._availableObjects[i] = this.createPoolableObject();
+				this._availableObjects[ i ] = this.createPoolableObject();
 			}
 		}
 
@@ -70,14 +71,11 @@ package net.fpp.common.util.objectpool
 
 		public function getObject():IPoolableObject
 		{
-			if ( this._availableObjects.length > 0 )
+			if( this.getUsedObjectCount() < this.getPoolSize() )
 			{
-				this._usedObjects.push( this._availableObjects[ this._availableObjects.length - 1 ] );
-				this._availableObjects.pop();
-
-				return this._usedObjects[ this._usedObjects.length - 1 ];
+				return this.getAvailableObject();
 			}
-			else if ( this._isDynamicPool )
+			else if( this._isDynamicPool )
 			{
 				this.increaseDynamicPool( this._increaseCount );
 
@@ -90,18 +88,49 @@ package net.fpp.common.util.objectpool
 			}
 		}
 
+		private function getAvailableObject():IPoolableObject
+		{
+			var length:int = this._availableObjects.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				if( this.isFreeIndex( i ) )
+				{
+					this._usedObjectIndexes.push( i );
+
+					return this._availableObjects[ i ];
+				}
+			}
+
+			return null;
+		}
+
+		private function isFreeIndex( index:int ):Boolean
+		{
+			var length:int = this._usedObjectIndexes.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				if( this._usedObjectIndexes[ i ] == index )
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		public function releaseObject( poolableObject:IPoolableObject ):void
 		{
-			var length:int = this._usedObjects.length;
+			var length:int = this._availableObjects.length;
 
-			for ( var i:int = 0; i < length; i++ )
+			for( var i:int = 0; i < length; i++ )
 			{
-				if ( this._usedObjects[i] == poolableObject )
+				if( this._availableObjects[ i ] == poolableObject )
 				{
-					this._usedObjects.splice( i, 1 );
-					this._availableObjects.push( poolableObject );
-
 					poolableObject.reset();
+
+					this._usedObjectIndexes.splice( this._usedObjectIndexes.indexOf( i ), 1 );
 
 					return;
 				}
@@ -112,17 +141,32 @@ package net.fpp.common.util.objectpool
 
 		public function dispose():void
 		{
-			var length:int = this._usedObjects.length;
-
-			for ( var i:int = 0; i < length; i++ )
+			if( this._availableObjects )
 			{
-				this._usedObjects[i].reset();
-				this._usedObjects[i].dispose();
-				this._usedObjects[i] = null;
+				var length:int = this._availableObjects.length;
+
+				for( var i:int = 0; i < length; i++ )
+				{
+					this._availableObjects[ i ].reset();
+					this._availableObjects[ i ].dispose();
+					this._availableObjects[ i ] = null;
+				}
+
+				this._availableObjects.length = 0;
+				this._availableObjects = null;
 			}
 
-			this._usedObjects.length = 0;
-			this._usedObjects = null;
+			this._usedObjectIndexes = null;
+		}
+
+		public function getPoolSize():int
+		{
+			return this._availableObjects ? this._availableObjects.length : 0;
+		}
+
+		public function getUsedObjectCount():int
+		{
+			return this._usedObjectIndexes ? this._usedObjectIndexes.length : 0;
 		}
 	}
 }

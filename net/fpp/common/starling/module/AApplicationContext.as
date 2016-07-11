@@ -107,9 +107,6 @@ package net.fpp.common.starling.module
 
 				if ( module == bModule )
 				{
-					bModule.dispose();
-					bModule = null;
-
 					this._modules.splice( i, 1 );
 
 					return;
