@@ -14,6 +14,8 @@ package net.fpp.common.starling.module
 
 		private var _modules:Vector.<IModule> = new <IModule>[];
 
+		private var _updateCounter:int = 0;
+
 		public function startUpdateHandling():void
 		{
 			this.addEventListener( EnterFrameEvent.ENTER_FRAME, this.onEnterFrameHandler );
@@ -32,6 +34,8 @@ package net.fpp.common.starling.module
 
 		private function updateModules():void
 		{
+			this._updateCounter++;
+
 			var length:int = this._modules.length;
 
 			for( var i:int = 0; i < length; i++ )
@@ -40,7 +44,12 @@ package net.fpp.common.starling.module
 
 				if( module is IUpdatableModule )
 				{
-					( module as IUpdatableModule ).onUpdate();
+					var updatableModule:IUpdatableModule = module as IUpdatableModule;
+
+					if ( this._updateCounter % updatableModule.getUpdateFrequency() == 0 )
+					{
+						updatableModule.onUpdate();
+					}
 				}
 			}
 		}
