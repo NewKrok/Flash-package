@@ -4,18 +4,17 @@
 package net.fpp.common.starling.log
 {
 	import net.fpp.common.starling.log.events.LogViewEvent;
+	import net.fpp.common.starling.log.vo.LogEntryVO;
+	import net.fpp.common.util.TimeUtil;
 
-	import starling.display.Image;
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 	import starling.text.TextField;
-	import starling.utils.HAlign;
-	import starling.utils.VAlign;
-	import starling.display.Quad;
-	import net.fpp.common.util.TimeUtil;
-	import net.fpp.common.starling.log.vo.LogEntryVO;
+	import starling.text.TextFormat;
+	import starling.utils.Align;
 
 	public class LogView extends Sprite
 	{
@@ -48,15 +47,17 @@ package net.fpp.common.starling.log
 			this._background.alpha = .7;
 			this.addChild( this._background );
 
-			this._contentText = new TextField( this.stage.stageWidth - 10, this.stage.stageHeight - 10, '' );
-			
+			var textFormat:TextFormat = new TextFormat();
+			textFormat.size = 10;
+			textFormat.color = 0xFFFFFF;
+			textFormat.horizontalAlign = Align.LEFT;
+			textFormat.verticalAlign = Align.TOP;
+
+			this._contentText = new TextField( this.stage.stageWidth - 10, this.stage.stageHeight - 10, '', textFormat );
+
 			this._contentText.x = this.stage.stageWidth / 2 - _contentText.width / 2;
 			this._contentText.y = this.stage.stageHeight / 2 - _contentText.height / 2;
-			this._contentText.vAlign = VAlign.TOP;
-			this._contentText.hAlign = HAlign.LEFT;
-			this._contentText.color = 0xFFFFFF;
-			this._contentText.fontSize = 10;
-			
+
 			this.addChild( this._contentText );
 		}
 
@@ -65,14 +66,14 @@ package net.fpp.common.starling.log
 			var entry:String = '[' + TimeUtil.timeStampToFormattedTime( logEntryVO.creationTime, TimeUtil.TIME_FORMAT_MM_SS_MS ) + '] ';
 			var length:int = logEntryVO.entry.length;
 
-			for ( var i:int = 0; i < length; i++ )
+			for( var i:int = 0; i < length; i++ )
 			{
-				entry += logEntryVO.entry[i] + ' ';
+				entry += logEntryVO.entry[ i ] + ' ';
 			}
 
 			this._contentText.text += entry + '\n';
-			
-			if ( this._contentText.textBounds.height > this._contentText.height )
+
+			if( this._contentText.textBounds.height > this._contentText.height )
 			{
 				this._contentText.text = this._contentText.text.substr( this._contentText.text.indexOf( '\n' ) + 1 );
 			}
@@ -80,7 +81,7 @@ package net.fpp.common.starling.log
 
 		private function onTouch( e:TouchEvent ):void
 		{
-			if ( e.getTouch( this ).phase == TouchPhase.BEGAN )
+			if( e.getTouch( this ).phase == TouchPhase.BEGAN )
 			{
 				this.hide();
 			}
@@ -88,7 +89,7 @@ package net.fpp.common.starling.log
 
 		public function show():void
 		{
-			if ( this.parent.getChildIndex( this ) != this.parent.numChildren )
+			if( this.parent.getChildIndex( this ) != this.parent.numChildren )
 			{
 				this.parent.addChild( this );
 			}

@@ -8,5 +8,10 @@ package net.fpp.common.util.pathfinding.vo
 	public class PathVO
 	{
 		public var path:Vector.<SimplePoint>;
+
+		public function PathVO( path:Vector.<SimplePoint> = null )
+		{
+			this.path = path;
+		}
 	}
 }
