@@ -1,16 +1,13 @@
-/**
+﻿/**
  * Created by newkrok on 18/04/16.
  */
-package net.fpp.common.starling.display
+package net.fpp.common.starling.core
 {
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.geom.Rectangle;
-	import flash.system.Capabilities;
-
-	import net.fpp.common.geom.SimplePoint;
 
 	import net.fpp.common.starling.constant.CAspectRatio;
 
@@ -19,13 +16,15 @@ package net.fpp.common.starling.display
 
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
+	import starling.utils.SystemUtil;
 
 	public class AStarlingMain extends Sprite
 	{
+		private var StageWidth:int;
+        private var StageHeight:int;
+
 		protected var _starlingObject:*;
 		protected var _mainClass:Class;
-
-		protected var _stageSize:SimplePoint;
 
 		protected var _isIOS:Boolean;
 
@@ -38,7 +37,7 @@ package net.fpp.common.starling.display
 
 		private function onAddedToStageHandler( e:flash.events.Event ):void
 		{
-			this._isIOS = Capabilities.manufacturer.indexOf( "iOS" ) != -1;
+			this._isIOS = SystemUtil.platform == "IOS";
 
 			this.setStage();
 
@@ -49,19 +48,14 @@ package net.fpp.common.starling.display
 		{
 			this.stage.scaleMode = StageScaleMode.NO_SCALE;
 			this.stage.align = StageAlign.TOP;
-
-			this._stageSize = new SimplePoint();
-
-			if ( this._aspectRatio == CAspectRatio.LANDSCAPE )
-			{
-				this._stageSize.x = this._isIOS ? ( ( stage.fullScreenWidth / stage.fullScreenHeight != 480 / 320 ) ? 568 : 480 ) : ( ( stage.stageWidth / stage.stageHeight != 480 / 320 ) ? 568 : 480 );
-				this._stageSize.y = 320;
-			}
 		}
 
 		protected function createStarling( mainClass:Class ):void
 		{
 			this._mainClass = mainClass;
+
+			this.StageWidth = this._aspectRatio == CAspectRatio.LANDSCAPE ? 480 : 320;
+			this.StageHeight = this._aspectRatio == CAspectRatio.LANDSCAPE ? 320 : 480;
 
 			this.initStarling( this.calculateViewPort() );
 		}
@@ -70,53 +64,37 @@ package net.fpp.common.starling.display
 		{
 			if( this._isIOS )
 			{
-				if( this._aspectRatio == CAspectRatio.LANDSCAPE )
-				{
-					return this.getIOSLandscapeViewPort();
-				}
+				return this.getMobileViewPort();
 			}
 			else
 			{
-				if( this._aspectRatio == CAspectRatio.LANDSCAPE )
-				{
-					return this.getPCLandscapeViewPort();
-				}
+				return this.getPCViewPort();
 			}
 
 			return new Rectangle();
 		}
 
-		private function getIOSLandscapeViewPort():Rectangle
+		private function getMobileViewPort():Rectangle
 		{
-			var viewPort:Rectangle = new Rectangle();
+			var stageSize:Rectangle = new Rectangle( 0, 0, StageWidth, StageHeight );
+            var screenSize:Rectangle = new Rectangle( 0, 0, this.stage.fullScreenWidth, this.stage.fullScreenHeight );
 
-			viewPort = RectangleUtil.fit(
-					new Rectangle( 0, 0, this._stageSize.x, this._stageSize.y ),
-					new Rectangle( 0, 0, this.stage.fullScreenWidth, this.stage.fullScreenHeight ),
-					ScaleMode.SHOW_ALL, true
-			);
-
-			return viewPort;
+			return RectangleUtil.fit( stageSize, screenSize, ScaleMode.SHOW_ALL, this._isIOS );
 		}
 
-		private function getPCLandscapeViewPort():Rectangle
+		private function getPCViewPort():Rectangle
 		{
-			var viewPort:Rectangle = new Rectangle();
+			var stageSize:Rectangle = new Rectangle( 0, 0, StageWidth, StageHeight );
+            var screenSize:Rectangle = new Rectangle( 0, 0, this.stage.stageWidth, this.stage.stageWidth );
 
-			viewPort = RectangleUtil.fit(
-					new Rectangle( 0, 0, this._stageSize.x, this._stageSize.y ),
-					new Rectangle( 0, 0, this.stage.stageWidth, this.stage.stageHeight ),
-					ScaleMode.SHOW_ALL, true
-			);
-
-			return viewPort;
+			return RectangleUtil.fit( stageSize, screenSize, ScaleMode.SHOW_ALL, this._isIOS );
 		}
 
 		private function initStarling( viewPort:Rectangle ):void
 		{
 			this._starlingObject = new Starling( this._mainClass, stage, viewPort );
-			this._starlingObject.stage.stageWidth = this._stageSize.x;
-			this._starlingObject.stage.stageHeight = this._stageSize.y;
+			this._starlingObject.stage.stageWidth = StageWidth;
+			this._starlingObject.stage.stageHeight = StageHeight;
 
 			this._starlingObject.addEventListener( starling.events.Event.ROOT_CREATED, this.starlingRootCreated );
 		}
