@@ -27,6 +27,7 @@ package net.fpp.common.starling.core
 		protected var _mainClass:Class;
 
 		protected var _isIOS:Boolean;
+		protected var _isIPad:Boolean;
 
 		protected var _aspectRatio:String = CAspectRatio.LANDSCAPE;
 
@@ -37,11 +38,21 @@ package net.fpp.common.starling.core
 
 		private function onAddedToStageHandler( e:flash.events.Event ):void
 		{
+			this.stage.addEventListener( flash.events.Event.RESIZE, this.onResize );
+			
 			this._isIOS = SystemUtil.platform == "IOS";
 
 			this.setStage();
 
 			this.onInit();
+		}
+		
+		private function onResize( e:flash.events.Event ):void
+		{
+			if ( this._starlingObject )
+			{
+				this._starlingObject.viewPort = this.calculateViewPort();
+			}
 		}
 
 		private function setStage():void
@@ -54,14 +65,13 @@ package net.fpp.common.starling.core
 		{
 			this._mainClass = mainClass;
 
-			this.StageWidth = this._aspectRatio == CAspectRatio.LANDSCAPE ? 480 : 320;
-			this.StageHeight = this._aspectRatio == CAspectRatio.LANDSCAPE ? 320 : 480;
-
 			this.initStarling( this.calculateViewPort() );
 		}
-
+		
 		private function calculateViewPort():Rectangle
 		{
+			this.calculateBaseStageSize();
+			
 			if( this._isIOS )
 			{
 				return this.getMobileViewPort();
@@ -72,6 +82,54 @@ package net.fpp.common.starling.core
 			}
 
 			return new Rectangle();
+		}
+		
+		private function calculateBaseStageSize():void
+		{
+			if ( CAspectRatio.LANDSCAPE )
+			{
+				this._isIPad = ( this.stage.fullScreenHeight == 768 || this.stage.fullScreenHeight == 1536 ) ? true : false;
+				
+				if ( this._isIPad )
+				{
+					this.StageWidth = 1024 / 2;
+					this.StageHeight = 768 / 2;	
+				}
+				else
+				{
+					if ( this._isIOS )
+					{
+						this.StageWidth = this.stage.fullScreenWidth / this.stage.fullScreenHeight != 480 / 320 ? 568 : 480;
+					}
+					else
+					{
+						this.StageWidth = this.stage.stageWidth / this.stage.stageHeight != 480 / 320 ? 568 : 480
+					}
+					this.StageHeight = 320;
+				}
+			}
+			else
+			{
+				this._isIPad = ( this.stage.fullScreenWidth == 768 || this.stage.fullScreenWidth == 1536 ) ? true : false;
+				
+				if ( this._isIPad )
+				{
+					this.StageWidth = 768 / 2;
+					this.StageHeight = 1024 / 2;	
+				}
+				else
+				{
+					if ( this._isIOS )
+					{
+						this.StageHeight = this.stage.fullScreenHeight / this.stage.fullScreenWidth != 480 / 320 ? 568 : 480;
+					}
+					else
+					{
+						this.StageHeight = this.stage.stageHeight / this.stage.stageWidth != 480 / 320 ? 568 : 480
+					}
+					this.StageWidth = 320;
+				}
+			}
 		}
 
 		private function getMobileViewPort():Rectangle
