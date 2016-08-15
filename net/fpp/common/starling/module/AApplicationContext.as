@@ -168,9 +168,9 @@ package net.fpp.common.starling.module
 				{
 					handler[ this.getInjectionName( classType ) ] = this.getModuleByClassType( classType );
 				}
-				catch (e:Error)
+				catch( e:Error )
 				{
-					throw new Error( 'Automatic dependency injection error at ' + classType.toString() + '. Maybe there is a misspelled variable name in ' + handler + ' or is it a not public variable.' );
+					throw new Error( 'Automatic dependency injection error at ' + classType.toString() + ' as ' + this.getInjectionName( classType ) + ' to ' + handler + '. Maybe there is a misspelled variable name or is it a not public variable.' );
 				}
 			}
 		}
