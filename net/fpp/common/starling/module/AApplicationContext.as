@@ -14,6 +14,8 @@ package net.fpp.common.starling.module
 
 		private var _modules:Vector.<IModule> = new <IModule>[];
 
+		private var _handlers:Vector.<IHandler> = new <IHandler>[];
+
 		private var _updateCounter:int = 0;
 
 		public function startUpdateHandling():void
@@ -46,7 +48,7 @@ package net.fpp.common.starling.module
 				{
 					var updatableModule:IUpdatableModule = module as IUpdatableModule;
 
-					if ( this._updateCounter % updatableModule.getUpdateFrequency() == 0 )
+					if( this._updateCounter % updatableModule.getUpdateFrequency() == 0 )
 					{
 						updatableModule.onUpdate();
 					}
@@ -64,26 +66,30 @@ package net.fpp.common.starling.module
 
 			if( args )
 			{
-				switch ( args.length )
+				switch( args.length )
 				{
 					case 1:
-						module = new moduleClass( args[0] );
+						module = new moduleClass( args[ 0 ] );
 						break;
 
 					case 2:
-						module = new moduleClass( args[0], args[1] );
+						module = new moduleClass( args[ 0 ], args[ 1 ] );
 						break;
 
 					case 3:
-						module = new moduleClass( args[0], args[1], args[2] );
+						module = new moduleClass( args[ 0 ], args[ 1 ], args[ 2 ] );
 						break;
 
 					case 4:
-						module = new moduleClass( args[0], args[1], args[2], args[3] );
+						module = new moduleClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ] );
 						break;
 
 					case 5:
-						module = new moduleClass( args[0], args[1], args[2], args[3], args[4] );
+						module = new moduleClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ], args[ 4 ] );
+						break;
+
+					default:
+						throw new Error( 'To many constructor params. Try optimize it!' );
 						break;
 				}
 			}
@@ -114,7 +120,7 @@ package net.fpp.common.starling.module
 			{
 				var bModule:IModule = this._modules[ i ];
 
-				if ( module == bModule )
+				if( module == bModule )
 				{
 					this._modules.splice( i, 1 );
 
@@ -123,10 +129,90 @@ package net.fpp.common.starling.module
 			}
 		}
 
+		private function getModuleByClassType( classType:Class ):IModule
+		{
+			var length:int = this._modules.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var module:IModule = this._modules[ i ];
+
+				if( module is classType )
+				{
+					return module;
+				}
+			}
+
+			return null;
+		}
+
+		public function registerHandler( handler:IHandler ):void
+		{
+			this._handlers.push( handler );
+
+			this.collectDependencies( handler );
+
+			handler.onInited();
+		}
+
+		private function collectDependencies( handler:IHandler ):void
+		{
+			var dependencies:Vector.<Class> = handler.getDependencies();
+			var length:int = dependencies.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var classType:Class = dependencies[ i ];
+
+				try
+				{
+					handler[ this.getInjectionName( classType ) ] = this.getModuleByClassType( classType );
+				}
+				catch (e:Error)
+				{
+					throw new Error( 'Automatic dependency injection error at ' + classType.toString() + '. Maybe there is a misspelled variable name in ' + handler + ' or is it a not public variable.' );
+				}
+			}
+		}
+
+		private function getInjectionName( classType:Class ):String
+		{
+			var classInString:String = classType.toString();
+			classInString = classInString.replace( '[class I', '' );
+			classInString = classInString.replace( ']', '' );
+			classInString = classInString.charAt( 0 ).toLowerCase() + classInString.substr( 1 );
+
+			return classInString;
+		}
+
 		override public function dispose():void
 		{
 			this.stopUpdateHandling();
 
+			this.disposeHandlers();
+			this.disposeModules();
+
+			this.injector = null;
+		}
+
+		private function disposeHandlers():void
+		{
+			var length:int = this._handlers.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var handler:IHandler = this._handlers[ i ];
+
+				handler.dispose();
+				handler = null;
+			}
+
+			this._handlers.length = 0;
+			this._handlers = null;
+		}
+
+		private function disposeModules():void
+		{
 			var length:int = this._modules.length;
 
 			for( var i:int = 0; i < length; i++ )
@@ -139,8 +225,6 @@ package net.fpp.common.starling.module
 
 			this._modules.length = 0;
 			this._modules = null;
-
-			this.injector = null;
 		}
 	}
 }
