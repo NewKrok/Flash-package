@@ -8,7 +8,7 @@ package net.fpp.common.starling.module
 	import starling.display.Sprite;
 	import starling.events.EnterFrameEvent;
 
-	public class AApplicationContext extends Sprite
+	public class AApplicationContext extends Sprite implements IApplicationContext
 	{
 		public var injector:Injector = new Injector();
 
@@ -166,7 +166,7 @@ package net.fpp.common.starling.module
 
 				try
 				{
-					handler[ this.getInjectionName( classType ) ] = this.getModuleByClassType( classType );
+					handler[ this.getInjectionName( classType ) ] = this.getDependencyByClassType( classType );
 				}
 				catch( e:Error )
 				{
@@ -183,6 +183,18 @@ package net.fpp.common.starling.module
 			classInString = classInString.charAt( 0 ).toLowerCase() + classInString.substr( 1 );
 
 			return classInString;
+		}
+
+		private function getDependencyByClassType( classType:Class ):Object
+		{
+			if ( classType == IApplicationContext )
+			{
+				return this;
+			}
+			else
+			{
+				return this.getModuleByClassType( classType );
+			}
 		}
 
 		override public function dispose():void
