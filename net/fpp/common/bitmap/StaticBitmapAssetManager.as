@@ -40,7 +40,5 @@ package net.fpp.common.bitmap
 				throw new Error( 'The scale factor already set up.' );
 			}
 		}
-		
 	}
-	
 }
