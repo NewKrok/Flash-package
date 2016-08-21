@@ -143,7 +143,7 @@ package net.fpp.common.starling.core
 		private function getPCViewPort():Rectangle
 		{
 			var stageSize:Rectangle = new Rectangle( 0, 0, StageWidth, StageHeight );
-            var screenSize:Rectangle = new Rectangle( 0, 0, this.stage.stageWidth, this.stage.stageWidth );
+            var screenSize:Rectangle = new Rectangle( 0, 0, this.stage.stageWidth, this.stage.stageHeight );
 
 			return RectangleUtil.fit( stageSize, screenSize, ScaleMode.SHOW_ALL, this._isIOS );
 		}
