@@ -3,10 +3,8 @@
  */
 package net.fpp.common.starling.module
 {
-	public interface IHandler
+	public interface IHandler extends IInjectionContainer
 	{
-		function getDependencies():Vector.<Class>
-
 		function onInited():void;
 
 		function dispose():void;

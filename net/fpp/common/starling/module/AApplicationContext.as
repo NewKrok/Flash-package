@@ -3,16 +3,16 @@
  */
 package net.fpp.common.starling.module
 {
-	import org.swiftsuspenders.Injector;
+	import flash.utils.describeType;
+	import flash.utils.getQualifiedClassName;
 
 	import starling.display.Sprite;
 	import starling.events.EnterFrameEvent;
 
 	public class AApplicationContext extends Sprite implements IApplicationContext
 	{
-		public var injector:Injector = new Injector();
-
 		private var _modules:Vector.<IModule> = new <IModule>[];
+		private var _updatableModules:Vector.<IUpdatableModule> = new <IUpdatableModule>[];
 
 		private var _handlers:Vector.<IHandler> = new <IHandler>[];
 
@@ -38,20 +38,15 @@ package net.fpp.common.starling.module
 		{
 			this._updateCounter++;
 
-			var length:int = this._modules.length;
+			var length:int = this._updatableModules.length;
 
 			for( var i:int = 0; i < length; i++ )
 			{
-				var module:IModule = this._modules[ i ];
+				var updatableModule:IUpdatableModule = this._updatableModules[ i ];
 
-				if( module is IUpdatableModule )
+				if( this._updateCounter % updatableModule.getUpdateFrequency() == 0 )
 				{
-					var updatableModule:IUpdatableModule = module as IUpdatableModule;
-
-					if( this._updateCounter % updatableModule.getUpdateFrequency() == 0 )
-					{
-						updatableModule.onUpdate();
-					}
+					updatableModule.onUpdate();
 				}
 			}
 		}
@@ -105,9 +100,14 @@ package net.fpp.common.starling.module
 		{
 			this._modules.push( module );
 
-			this.injector.injectInto( module );
+			if( module is IUpdatableModule )
+			{
+				this._updatableModules.push( module as IUpdatableModule );
+			}
 
-			module.onRegistered();
+			this.collectDependencies( module );
+
+			module.onInited();
 
 			return module;
 		}
@@ -124,7 +124,24 @@ package net.fpp.common.starling.module
 				{
 					this._modules.splice( i, 1 );
 
-					return;
+					break;
+				}
+			}
+
+			if( module is IUpdatableModule )
+			{
+				length = this._updatableModules.length;
+
+				for( i = 0; i < length; i++ )
+				{
+					bModule = this._updatableModules[ i ];
+
+					if( module == bModule )
+					{
+						this._updatableModules.splice( i, 1 );
+
+						break;
+					}
 				}
 			}
 		}
@@ -155,39 +172,58 @@ package net.fpp.common.starling.module
 			handler.onInited();
 		}
 
-		private function collectDependencies( handler:IHandler ):void
+		private function collectDependencies( injectionContainer:IInjectionContainer ):void
 		{
-			var dependencies:Vector.<Class> = handler.getDependencies();
-			var length:int = dependencies.length;
+			var dependencies:Vector.<Class> = injectionContainer.getDependencies();
+			var length:int = dependencies ? dependencies.length : 0;
 
-			for( var i:int = 0; i < length; i++ )
+			if ( length > 0 )
 			{
-				var classType:Class = dependencies[ i ];
+				var classVariables:XMLList = describeType( injectionContainer ).child( 'variable' );
 
-				try
+				for( var i:int = 0; i < length; i++ )
 				{
-					handler[ this.getInjectionName( classType ) ] = this.getDependencyByClassType( classType );
-				}
-				catch( e:Error )
-				{
-					throw new Error( 'Automatic dependency injection error at ' + classType.toString() + ' as ' + this.getInjectionName( classType ) + ' to ' + handler + '. Maybe there is a misspelled variable name or is it a not public variable.' );
+					var classType:Class = dependencies[ i ];
+					var injectionName:String = this.getInjectionName( classVariables, classType );
+					var dependency:Object = this.getDependencyByClassType( classType );
+
+					try
+					{
+						if( dependency )
+						{
+							injectionContainer[ injectionName ] = dependency;
+						}
+						else
+						{
+							throw new Error( 'The class ' + getQualifiedClassName( classType ) + ' is missing.' );
+						}
+					}
+					catch( e:Error )
+					{
+						throw new Error( 'Automatic dependency injection error at ' + getQualifiedClassName( classType ) + ' as ' + injectionName + ' to ' + injectionContainer + '.' );
+					}
 				}
 			}
 		}
 
-		private function getInjectionName( classType:Class ):String
+		private function getInjectionName( classVariables:XMLList, classType:Class ):String
 		{
-			var classInString:String = classType.toString();
-			classInString = classInString.replace( '[class I', '' );
-			classInString = classInString.replace( ']', '' );
-			classInString = classInString.charAt( 0 ).toLowerCase() + classInString.substr( 1 );
+			var length:int = classVariables.length();
 
-			return classInString;
+			for( var i:int = 0; i < length; i++ )
+			{
+				if ( classVariables[i].@type == getQualifiedClassName( classType ) )
+				{
+					return classVariables[i].@name;
+				}
+			}
+
+			return '';
 		}
 
 		private function getDependencyByClassType( classType:Class ):Object
 		{
-			if ( classType == IApplicationContext )
+			if( classType == IApplicationContext )
 			{
 				return this;
 			}
@@ -203,8 +239,6 @@ package net.fpp.common.starling.module
 
 			this.disposeHandlers();
 			this.disposeModules();
-
-			this.injector = null;
 		}
 
 		private function disposeHandlers():void
@@ -237,6 +271,9 @@ package net.fpp.common.starling.module
 
 			this._modules.length = 0;
 			this._modules = null;
+
+			this._updatableModules.length = 0;
+			this._updatableModules = null;
 		}
 	}
 }

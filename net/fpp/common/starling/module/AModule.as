@@ -45,8 +45,13 @@
 			return this._view;
 		}
 
-		public function onRegistered():void
+		public function onInited():void
 		{
+		}
+
+		public function getDependencies():Vector.<Class>
+		{
+			return null;
 		}
 
 		public function dispose():void

@@ -2,11 +2,11 @@
 {
 	import net.fpp.common.starling.events.IEventDispatcher;
 
-	public interface IModule extends IEventDispatcher
+	public interface IModule extends IEventDispatcher, IInjectionContainer
 	{
 		function getView():AModuleView;
 
-		function onRegistered():void;
+		function onInited():void;
 
 		function dispose():void;
 	}
