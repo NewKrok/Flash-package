@@ -1,6 +1,6 @@
 ﻿package net.fpp.common.starling.module
 {
-	import net.fpp.common.starling.module.events.ModuleEvent;
+	import net.fpp.common.starling.module.event.ModuleEvent;
 
 	import starling.events.EventDispatcher;
 
@@ -49,11 +49,6 @@
 		{
 		}
 
-		public function getDependencies():Vector.<Class>
-		{
-			return null;
-		}
-
 		public function dispose():void
 		{
 			if( this._view )
@@ -61,7 +56,7 @@
 				this._view.removeFromParent( true );
 				this._view = null;
 			}
-			
+
 			if( this._model )
 			{
 				this._model.dispose();

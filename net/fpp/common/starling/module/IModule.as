@@ -2,7 +2,7 @@
 {
 	import net.fpp.common.starling.events.IEventDispatcher;
 
-	public interface IModule extends IEventDispatcher, IInjectionContainer
+	public interface IModule extends IEventDispatcher
 	{
 		function getView():AModuleView;
 

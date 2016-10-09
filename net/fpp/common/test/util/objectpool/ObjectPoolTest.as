@@ -66,7 +66,7 @@ package net.fpp.common.test.util.objectpool
 
 			var usedObjects:Vector.<IPoolableObject> = new <IPoolableObject>[];
 
-			if ( isDynamicObject || ( !isDynamicObject && countOfObjects <= objectPoolSettingVO.poolSize ) )
+			if( isDynamicObject || ( !isDynamicObject && countOfObjects <= objectPoolSettingVO.poolSize ) )
 			{
 				for( var i:int = 0; i < countOfObjects; i++ )
 				{
@@ -91,7 +91,7 @@ package net.fpp.common.test.util.objectpool
 				{
 					for( i = 0; i < countOfObjects; i++ )
 					{
-						var object:Object = this._objectPool.getObject();
+						object = this._objectPool.getObject();
 						usedObjects.push( object );
 
 						assertTrue( object is ObjectPoolTestPoolableObject );

@@ -1,7 +1,7 @@
 ﻿/**
  * Created by newkrok on 09/01/16.
  */
-package net.fpp.common.starling.module.events
+package net.fpp.common.starling.module.event
 {
 	import starling.events.Event;
 

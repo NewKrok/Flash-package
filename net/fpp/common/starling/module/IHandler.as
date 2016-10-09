@@ -3,7 +3,7 @@
  */
 package net.fpp.common.starling.module
 {
-	public interface IHandler extends IInjectionContainer
+	public interface IHandler
 	{
 		function onInited():void;
 
