@@ -5,8 +5,6 @@ package net.fpp.common.starling.module
 {
 	public interface IApplicationContext
 	{
-		function get passedTime():Number;
-
 		function get now():Number;
 
 		function startUpdateHandling():void;
@@ -19,7 +17,23 @@ package net.fpp.common.starling.module
 
 		function unregisterModule( module:IModule ):void;
 
-		function registerHandler( handler:IHandler ):void;
+		function disposeModuleByClass( moduleClass:Class ):void;
+
+		function createHandler( handlerClass:Class, args:Array = null ):IHandler;
+
+		function registerHandler( handler:IHandler ):IHandler;
+
+		function unregisterHandler( handler:IHandler ):void;
+
+		function disposeHandlerByClass( handlerClass:Class ):void;
+
+		function createService( id:String, serviceClass:Class, serviceInterface:Class, args:Array = null ):IService
+
+		function registerService( id:String, service:IService, serviceInterface:Class ):IService
+
+		function unregisterService( service:IService ):void;
+
+		function disposeServiceByClass( serviceClass:Class ):void;
 
 		function dispose():void;
 	}

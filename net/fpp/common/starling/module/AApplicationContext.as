@@ -14,25 +14,24 @@ package net.fpp.common.starling.module
 		private var _modules:Vector.<IModule> = new <IModule>[];
 		private var _updatableModuleVOs:Vector.<UpdatableModuleVO> = new <UpdatableModuleVO>[];
 
+		protected var _view:Sprite = new Sprite();
+
 		private var _handlers:Vector.<IHandler> = new <IHandler>[];
+		private var _services:Vector.<IService> = new <IService>[];
 
-		private var _injector:Injector = new Injector();
+		protected var _injector:Injector = new Injector();
 
-		private var _passedTime:Number = 0;
-		private var _now:Number = 0;
-		private var _lastUpdateTime:Number = 0;
+		private var _now:Number;
 
 		public function AApplicationContext()
 		{
+			this.addChild( this._view );
+
 			this._injector.mapToValue( IApplicationContext, this );
 		}
 
 		public function startUpdateHandling():void
 		{
-			this._now = new Date().time;
-
-			this._lastUpdateTime = this._now;
-
 			var length:int = this._updatableModuleVOs.length;
 
 			for( var i:int = 0; i < length; i++ )
@@ -51,8 +50,6 @@ package net.fpp.common.starling.module
 		private function onEnterFrameHandler():void
 		{
 			this._now = new Date().time;
-			this._passedTime = this._now - this._lastUpdateTime;
-			this._lastUpdateTime = now;
 
 			this.updateModules();
 			this.onUpdate();
@@ -70,11 +67,11 @@ package net.fpp.common.starling.module
 				if( updateFrequency == 0 )
 				{
 					updatableModule.onUpdate();
-					this._updatableModuleVOs[ i ].lastUpdateTime = now;
+					this._updatableModuleVOs[ i ].lastUpdateTime = this._now;
 				}
 				else
 				{
-					var passedTimeAfterLastModuleUpdate:Number = this.now - this._updatableModuleVOs[ i ].lastUpdateTime;
+					var passedTimeAfterLastModuleUpdate:Number = this._now - this._updatableModuleVOs[ i ].lastUpdateTime;
 					var updateCounter:int = Math.floor( passedTimeAfterLastModuleUpdate / updateFrequency );
 
 					for( var j:int = 0; j < updateCounter; j++ )
@@ -84,7 +81,7 @@ package net.fpp.common.starling.module
 
 					if( updateCounter > 0 )
 					{
-						this._updatableModuleVOs[ i ].lastUpdateTime = now + updateCounter * updateFrequency;
+						this._updatableModuleVOs[ i ].lastUpdateTime = this._now + updateCounter * updateFrequency;
 					}
 				}
 			}
@@ -97,11 +94,6 @@ package net.fpp.common.starling.module
 		public function get now():Number
 		{
 			return this._now;
-		}
-
-		public function get passedTime():Number
-		{
-			return this._passedTime;
 		}
 
 		public function createModule( id:String, moduleClass:Class, moduleInterface:Class, args:Array = null ):IModule
@@ -140,6 +132,11 @@ package net.fpp.common.starling.module
 			else
 			{
 				module = new moduleClass();
+			}
+
+			if( module.getView() )
+			{
+				this._view.addChild( module.getView() );
 			}
 
 			return this.registerModule( id, module, moduleInterface );
@@ -199,26 +196,221 @@ package net.fpp.common.starling.module
 			}
 		}
 
-		public function registerHandler( handler:IHandler ):void
+		public function disposeModuleByClass( moduleClass:Class ):void
+		{
+			var length:int = this._modules.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var module:IModule = this._modules[ i ];
+
+				if( module is moduleClass )
+				{
+					this._injector.removeMapFromValue( module );
+
+					module.dispose();
+					module = null;
+					this._modules.splice( i, 1 );
+
+					length--;
+					i--;
+				}
+			}
+		}
+
+		public function createHandler( handlerClass:Class, args:Array = null ):IHandler
+		{
+			var handler:IHandler;
+
+			if( args )
+			{
+				switch( args.length )
+				{
+					case 1:
+						handler = new handlerClass( args[ 0 ] );
+						break;
+
+					case 2:
+						handler = new handlerClass( args[ 0 ], args[ 1 ] );
+						break;
+
+					case 3:
+						handler = new handlerClass( args[ 0 ], args[ 1 ], args[ 2 ] );
+						break;
+
+					case 4:
+						handler = new handlerClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ] );
+						break;
+
+					case 5:
+						handler = new handlerClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ], args[ 4 ] );
+						break;
+
+					default:
+						throw new Error( 'To many constructor params. Try optimize it!' );
+						break;
+				}
+			}
+			else
+			{
+				handler = new handlerClass();
+			}
+
+			return this.registerHandler( handler );
+		}
+
+		public function registerHandler( handler:IHandler ):IHandler
 		{
 			this._handlers.push( handler );
 
 			this._injector.inject( handler );
 
 			handler.onInited();
+
+			return handler;
 		}
 
-		protected function get injector():Injector
+		public function unregisterHandler( handler:IHandler ):void
 		{
-			return this._injector;
+			var length:int = this._handlers.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var bHandler:IHandler = this._handlers[ i ];
+
+				if( handler == bHandler )
+				{
+					this._handlers.splice( i, 1 );
+
+					break;
+				}
+			}
+		}
+
+		public function disposeHandlerByClass( handlerClass:Class ):void
+		{
+			var length:int = this._handlers.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var handler:IHandler = this._handlers[ i ];
+
+				if( handler is handlerClass )
+				{
+					handler.dispose();
+					handler = null;
+					this._handlers.splice( i, 1 );
+
+					length--;
+					i--;
+				}
+			}
+		}
+
+		public function createService( id:String, serviceClass:Class, serviceInterface:Class, args:Array = null ):IService
+		{
+			var service:IService;
+
+			if( args )
+			{
+				switch( args.length )
+				{
+					case 1:
+						service = new serviceClass( args[ 0 ] );
+						break;
+
+					case 2:
+						service = new serviceClass( args[ 0 ], args[ 1 ] );
+						break;
+
+					case 3:
+						service = new serviceClass( args[ 0 ], args[ 1 ], args[ 2 ] );
+						break;
+
+					case 4:
+						service = new serviceClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ] );
+						break;
+
+					case 5:
+						service = new serviceClass( args[ 0 ], args[ 1 ], args[ 2 ], args[ 3 ], args[ 4 ] );
+						break;
+
+					default:
+						throw new Error( 'To many constructor params. Try optimize it!' );
+						break;
+				}
+			}
+			else
+			{
+				service = new serviceClass();
+			}
+
+			return this.registerService( id, service, serviceInterface );
+		}
+
+		public function registerService( id:String, service:IService, serviceInterface:Class ):IService
+		{
+			this._services.push( service );
+
+			this._injector.mapToValue( serviceInterface, service, id );
+
+			service.onInited();
+
+			return service;
+		}
+
+		public function unregisterService( service:IService ):void
+		{
+			this._injector.removeMapFromValue( service );
+
+			var length:int = this._services.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var bService:IService = this._services[ i ];
+
+				if( service == bService )
+				{
+					this._services.splice( i, 1 );
+
+					break;
+				}
+			}
+		}
+
+		public function disposeServiceByClass( serviceClass:Class ):void
+		{
+			var length:int = this._services.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var service:IService = this._services[ i ];
+
+				if( service is serviceClass )
+				{
+					this._injector.removeMapFromValue( service );
+
+					service.dispose();
+					service = null;
+					this._services.splice( i, 1 );
+
+					length--;
+					i--;
+				}
+			}
 		}
 
 		override public function dispose():void
 		{
 			this.stopUpdateHandling();
 
+			this._injector.dispose();
+
 			this.disposeHandlers();
+			this.disposeServices();
 			this.disposeModules();
+
+			this._view.removeFromParent( true );
 		}
 
 		private function disposeHandlers():void
@@ -237,10 +429,24 @@ package net.fpp.common.starling.module
 			this._handlers = null;
 		}
 
+		private function disposeServices():void
+		{
+			var length:int = this._services.length;
+
+			for( var i:int = 0; i < length; i++ )
+			{
+				var service:IService = this._services[ i ];
+
+				service.dispose();
+				service = null;
+			}
+
+			this._services.length = 0;
+			this._services = null;
+		}
+
 		private function disposeModules():void
 		{
-			this._injector.dispose();
-
 			var length:int = this._modules.length;
 
 			for( var i:int = 0; i < length; i++ )
