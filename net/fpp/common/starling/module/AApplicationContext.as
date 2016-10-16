@@ -21,7 +21,7 @@ package net.fpp.common.starling.module
 
 		protected var _injector:Injector = new Injector();
 
-		private var _now:Number;
+		private var _now:Number = new Date().time;
 
 		public function AApplicationContext()
 		{
@@ -81,7 +81,7 @@ package net.fpp.common.starling.module
 
 					if( updateCounter > 0 )
 					{
-						this._updatableModuleVOs[ i ].lastUpdateTime = this._now + updateCounter * updateFrequency;
+						this._updatableModuleVOs[ i ].lastUpdateTime += updateCounter * updateFrequency;
 					}
 				}
 			}
