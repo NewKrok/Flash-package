@@ -14,8 +14,6 @@ package net.fpp.common.starling.module
 		private var _modules:Vector.<IModule> = new <IModule>[];
 		private var _updatableModuleVOs:Vector.<UpdatableModuleVO> = new <UpdatableModuleVO>[];
 
-		protected var _view:Sprite = new Sprite();
-
 		private var _handlers:Vector.<IHandler> = new <IHandler>[];
 		private var _services:Vector.<IService> = new <IService>[];
 
@@ -25,8 +23,6 @@ package net.fpp.common.starling.module
 
 		public function AApplicationContext()
 		{
-			this.addChild( this._view );
-
 			this._injector.mapToValue( IApplicationContext, this );
 		}
 
@@ -132,11 +128,6 @@ package net.fpp.common.starling.module
 			else
 			{
 				module = new moduleClass();
-			}
-
-			if( module.getView() )
-			{
-				this._view.addChild( module.getView() );
 			}
 
 			return this.registerModule( id, module, moduleInterface );
@@ -409,8 +400,6 @@ package net.fpp.common.starling.module
 			this.disposeHandlers();
 			this.disposeServices();
 			this.disposeModules();
-
-			this._view.removeFromParent( true );
 		}
 
 		private function disposeHandlers():void
