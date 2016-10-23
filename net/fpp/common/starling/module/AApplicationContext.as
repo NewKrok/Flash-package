@@ -17,13 +17,13 @@ package net.fpp.common.starling.module
 		private var _handlers:Vector.<IHandler> = new <IHandler>[];
 		private var _services:Vector.<IService> = new <IService>[];
 
-		protected var _injector:Injector = new Injector();
-
 		private var _now:Number = new Date().time;
+
+		public var injector:Injector = new Injector();
 
 		public function AApplicationContext()
 		{
-			this._injector.mapToValue( IApplicationContext, this );
+			this.injector.mapToValue( IApplicationContext, this );
 		}
 
 		public function startUpdateHandling():void
@@ -142,8 +142,8 @@ package net.fpp.common.starling.module
 				this._updatableModuleVOs.push( new UpdatableModuleVO( module as IUpdatableModule ) );
 			}
 
-			this._injector.mapToValue( moduleInterface, module, id );
-			this._injector.inject( module );
+			this.injector.mapToValue( moduleInterface, module, id );
+			this.injector.inject( module );
 
 			module.onInited();
 
@@ -152,7 +152,7 @@ package net.fpp.common.starling.module
 
 		public function unregisterModule( module:IModule ):void
 		{
-			this._injector.removeMapFromValue( module );
+			this.injector.removeMapFromValue( module );
 
 			var length:int = this._modules.length;
 
@@ -197,7 +197,7 @@ package net.fpp.common.starling.module
 
 				if( module is moduleClass )
 				{
-					this._injector.removeMapFromValue( module );
+					this.injector.removeMapFromValue( module );
 
 					module.dispose();
 					module = null;
@@ -254,7 +254,7 @@ package net.fpp.common.starling.module
 		{
 			this._handlers.push( handler );
 
-			this._injector.inject( handler );
+			this.injector.inject( handler );
 
 			handler.onInited();
 
@@ -343,7 +343,7 @@ package net.fpp.common.starling.module
 		{
 			this._services.push( service );
 
-			this._injector.mapToValue( serviceInterface, service, id );
+			this.injector.mapToValue( serviceInterface, service, id );
 
 			service.onInited();
 
@@ -352,7 +352,7 @@ package net.fpp.common.starling.module
 
 		public function unregisterService( service:IService ):void
 		{
-			this._injector.removeMapFromValue( service );
+			this.injector.removeMapFromValue( service );
 
 			var length:int = this._services.length;
 
@@ -379,7 +379,7 @@ package net.fpp.common.starling.module
 
 				if( service is serviceClass )
 				{
-					this._injector.removeMapFromValue( service );
+					this.injector.removeMapFromValue( service );
 
 					service.dispose();
 					service = null;
@@ -395,7 +395,7 @@ package net.fpp.common.starling.module
 		{
 			this.stopUpdateHandling();
 
-			this._injector.dispose();
+			this.injector.dispose();
 
 			this.disposeHandlers();
 			this.disposeServices();
