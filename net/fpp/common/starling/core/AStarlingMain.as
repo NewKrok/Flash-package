@@ -159,10 +159,13 @@ package net.fpp.common.starling.core
 
 		private function starlingRootCreated( e:starling.events.Event ):void
 		{
-			var mainClass:* = this._starlingObject.root;
-			mainClass.start();
-
 			this._starlingObject.start();
+
+			this.onStarlingRootCreated();
+		}
+
+		protected function onStarlingRootCreated():void
+		{
 		}
 
 		protected function onInit():void
