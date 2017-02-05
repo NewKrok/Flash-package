@@ -48,9 +48,10 @@ package net.fpp.common.util.pathfinding.astar
 				var startX:int = Math.max( 0, node.x - 1 );
 				var endX:int = Math.min( width - 1, node.x + 1 );
 				var startY:int = Math.max( 0, node.y - 1 );
-				var endY:int = Math.min( height, node.y + 1 );
+				var endY:int = Math.min( height - 1, node.y + 1 );
 
-				var i:int, j:int;
+				var i:int = 0;
+				var j:int = 0;
 				var test:AStarNodeVO;
 				for( i = startX; i <= endX; i++ )
 				{
