@@ -21,6 +21,13 @@ package net.fpp.common.injection
 			this._mapToValueRules[ ruleName ] = value;
 		}
 
+		public function getValue( requestClass:Class, requestId:String = '' ):Object
+		{
+			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
+
+			return this._mapToValueRules[ ruleName ];
+		}
+
 		public function removeMapToValue( requestClass:Class, requestId:String = '' ):void
 		{
 			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
@@ -48,6 +55,13 @@ package net.fpp.common.injection
 			this._mapToSingletonRules[ ruleName ] = new classReference();
 		}
 
+		public function getSingleton( requestClass:Class, requestId:String = '' ):Object
+		{
+			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
+
+			return this._mapToSingletonRules[ ruleName ];
+		}
+
 		public function removeMapToSingleton( requestClass:Class, requestId:String = '' ):void
 		{
 			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
@@ -73,6 +87,13 @@ package net.fpp.common.injection
 			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
 
 			this._mapToClassRules[ ruleName ] = classReference;
+		}
+
+		public function getClass( requestClass:Class, requestId:String = '' ):Class
+		{
+			var ruleName:String = getQualifiedClassName( requestClass ) + '#' + requestId;
+
+			return this._mapToClassRules[ ruleName ];
 		}
 
 		public function removeMapToClass( requestClass:Class, requestId:String = '' ):void

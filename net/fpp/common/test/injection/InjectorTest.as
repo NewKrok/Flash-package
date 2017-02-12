@@ -115,6 +115,22 @@ package net.fpp.common.test.injection
 		}
 
 		[Test]
+		public function testGetValue():void
+		{
+			var valueObjectA:ITestInjectClassA = new TestInjectClassA();
+			var valueObjectB:ITestInjectClassA = new TestInjectClassA();
+			var valueObjectC:ITestInjectClassB = new TestInjectClassB();
+
+			this._injector.mapToValue( ITestInjectClassA, valueObjectA, 'testA' );
+			this._injector.mapToValue( ITestInjectClassA, valueObjectB, 'testB' );
+			this._injector.mapToValue( ITestInjectClassB, valueObjectC );
+
+			Assert.assertTrue( this._injector.getValue( ITestInjectClassA, 'testA' ), valueObjectA );
+			Assert.assertTrue( this._injector.getValue( ITestInjectClassA, 'testB' ), valueObjectB );
+			Assert.assertTrue( this._injector.getValue( ITestInjectClassB ), valueObjectC );
+		}
+
+		[Test]
 		public function testMapToSingletonAddAndRemove():void
 		{
 			var injectionContainerA:TestInjectionContainerA = new TestInjectionContainerA;
@@ -166,6 +182,36 @@ package net.fpp.common.test.injection
 		}
 
 		[Test]
+		public function testMapToSingletonWithId():void
+		{
+			var injectionContainer:TestInjectionContainerC = new TestInjectionContainerC;
+
+			this._injector.mapToSingleton( ITestInjectClassA, TestInjectClassA, 'testA' );
+			this._injector.mapToSingleton( ITestInjectClassA, TestInjectClassA, 'testB' );
+
+			this._injector.inject( injectionContainer );
+
+			Assert.assertNotNull( injectionContainer.testInjectionA );
+			Assert.assertNotNull( injectionContainer.testInjectionB );
+			Assert.assertTrue( injectionContainer.testInjectionA != injectionContainer.testInjectionB );
+
+		}
+
+		[Test]
+		public function testGetSingleton():void
+		{
+			this._injector.mapToSingleton( ITestInjectClassA, TestInjectClassA, 'testA' );
+			this._injector.mapToSingleton( ITestInjectClassA, TestInjectClassA, 'testB' );
+			this._injector.mapToSingleton( ITestInjectClassB, TestInjectClassB );
+
+			Assert.assertNotNull( this._injector.getSingleton( ITestInjectClassA, 'testA' ) );
+			Assert.assertNotNull( this._injector.getSingleton( ITestInjectClassA, 'testB' ) );
+			Assert.assertNotNull( this._injector.getSingleton( ITestInjectClassB ) );
+			Assert.assertTrue( this._injector.getSingleton( ITestInjectClassA, 'testA' ) != this._injector.getSingleton( ITestInjectClassA, 'testB' ) );
+			Assert.assertTrue( this._injector.getSingleton( ITestInjectClassA, 'testA' ) != this._injector.getSingleton( ITestInjectClassB ) );
+		}
+
+		[Test]
 		public function testMapToClassAddAndRemove():void
 		{
 			var injectionContainerA:TestInjectionContainerA = new TestInjectionContainerA;
@@ -214,6 +260,34 @@ package net.fpp.common.test.injection
 			Assert.assertNull( injectionContainerA.testInjection );
 			Assert.assertNull( injectionContainerB.testInjectionA );
 			Assert.assertNull( injectionContainerB.testInjectionB );
+		}
+
+		[Test]
+		public function testMapToClassWithId():void
+		{
+			var injectionContainer:TestInjectionContainerC = new TestInjectionContainerC;
+
+			this._injector.mapToClass( ITestInjectClassA, TestInjectClassA, 'testA' );
+			this._injector.mapToClass( ITestInjectClassA, TestInjectClassA, 'testB' );
+
+			this._injector.inject( injectionContainer );
+
+			Assert.assertTrue( injectionContainer.testInjectionA != injectionContainer.testInjectionB );
+
+		}
+
+		[Test]
+		public function testGetClass():void
+		{
+			this._injector.mapToClass( ITestInjectClassA, TestInjectClassA, 'testA' );
+			this._injector.mapToClass( ITestInjectClassA, TestInjectClassA, 'testB' );
+			this._injector.mapToClass( ITestInjectClassB, TestInjectClassB );
+
+			Assert.assertNotNull( this._injector.getClass( ITestInjectClassA, 'testA' ) );
+			Assert.assertNotNull( this._injector.getClass( ITestInjectClassA, 'testB' ) );
+			Assert.assertNotNull( this._injector.getClass( ITestInjectClassB ) );
+			Assert.assertTrue( this._injector.getClass( ITestInjectClassA, 'testA' ) != this._injector.getSingleton( ITestInjectClassA, 'testB' ) );
+			Assert.assertTrue( this._injector.getClass( ITestInjectClassA, 'testA' ) != this._injector.getSingleton( ITestInjectClassB ) );
 		}
 	}
 }
